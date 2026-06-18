@@ -97,7 +97,7 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Opt-in: set repo variable PUBLISH_HOMEBREW=true and secret HOMEBREW_TAP_TOKEN
-  # (a PAT with write access to franlol/homebrew-tap).
+  # (a PAT with write access to franlol/homebrew-iptop).
   # ---------------------------------------------------------------------------
   homebrew:
     name: Update Homebrew tap
@@ -112,7 +112,7 @@ jobs:
       - name: Checkout tap
         uses: actions/checkout@v4
         with:
-          repository: franlol/homebrew-tap
+          repository: franlol/homebrew-iptop
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: tap
 

@@ -23,12 +23,18 @@ fires `.github/workflows/release.yml`, which:
 
 ## Homebrew (opt-in)
 
-Distributes via your own tap: `brew install franlol/tap/iptop`.
+Distributes via your own tap:
+
+```bash
+brew tap franlol/iptop
+brew install iptop
+```
 
 One-time setup:
 
-1. Create a public repo **`franlol/homebrew-tap`** with an empty `Formula/`
-   directory.
+1. Create a public repo **`franlol/homebrew-iptop`** (the `homebrew-iptop`
+   name is what lets `brew tap franlol/iptop` resolve). It can be empty — the
+   workflow creates `Formula/iptop.rb`.
 2. Create a fine-grained PAT with **Contents: read/write** on that repo and add
    it to *this* repo as the secret **`HOMEBREW_TAP_TOKEN`**.
 3. Enable the job: add repo **variable** `PUBLISH_HOMEBREW=true`
