@@ -45,7 +45,13 @@ and pushes it on every tag.
 
 ## AUR (opt-in)
 
-Distributes the prebuilt binary as **`iptop-bin`**.
+Publishes **two** packages from the same secrets:
+
+- **`iptop-bin`** — downloads the prebuilt binary (instant install)
+- **`iptop`** — builds from source with `bun` (`makedepends`) on the user's machine
+
+They `conflict` with each other, per AUR convention (a binary package must carry
+the `-bin` suffix; the bare name builds from source).
 
 One-time setup:
 
