@@ -18,14 +18,12 @@ class Iptop < Formula
   version "$version"
   license "MIT"
 
+  # macOS: Apple Silicon only (Intel Macs are not supported via this tap).
   on_macos do
+    depends_on arch: :arm64
     on_arm do
       url "$base/iptop-$tag-darwin-arm64.tar.gz"
       sha256 "$(sha darwin-arm64)"
-    end
-    on_intel do
-      url "$base/iptop-$tag-darwin-x64.tar.gz"
-      sha256 "$(sha darwin-x64)"
     end
   end
 
