@@ -1,7 +1,12 @@
 {
   "name": "iptop",
+  "version": "0.1.0",
   "module": "src/index.tsx",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/franlol/iptop"
+  },
   "scripts": {
     "start": "bun run src/index.tsx",
     "dev": "bun --watch src/index.tsx",
