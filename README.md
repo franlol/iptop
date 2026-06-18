@@ -20,14 +20,26 @@
 - **Latency & connections** — continuous ping graphs and every TCP/UDP socket, resolved and GeoIP-tagged
 - **No root, no packet capture** — just the tools your OS already ships, refreshed every second
 
-## Quick start
+## Install
+
+```bash
+# Homebrew (macOS / Linux)
+brew install franlol/tap/iptop
+
+# Arch Linux (AUR)
+yay -S iptop-bin
+```
+
+Or grab a standalone binary from the [latest release](https://github.com/franlol/iptop/releases/latest) — no runtime required.
+
+### From source
 
 ```bash
 git clone https://github.com/franlol/iptop && cd iptop
 bun install && bun start
 ```
 
-Or build a standalone binary: `bun run build` → `./dist/iptop`
+Build your own binary: `bun run build` → `./dist/iptop`
 
 ```bash
 iptop --map   # fullscreen world-map wall-art mode
