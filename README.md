@@ -24,7 +24,8 @@
 
 ```bash
 # Homebrew (macOS / Linux)
-brew install franlol/tap/iptop
+brew tap franlol/iptop
+brew install iptop
 
 # Arch Linux (AUR)
 yay -S iptop-bin
