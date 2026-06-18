@@ -172,3 +172,40 @@ jobs:
           commit_email: ${{ vars.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           commit_message: "Update to ${{ github.ref_name }}"
+
+  # ---------------------------------------------------------------------------
+  # Opt-in (same secrets as `aur`): the source-built `iptop` package, compiled
+  # from the GitHub tag tarball with bun on the user's machine.
+  # ---------------------------------------------------------------------------
+  aur-src:
+    name: Publish iptop (source) to AUR
+    needs: release
+    if: vars.PUBLISH_AUR == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checksum the source tarball
+        id: src
+        run: |
+          url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
+          curl -fsSL "$url" -o src.tar.gz
+          echo "sha=$(sha256sum src.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Render PKGBUILD
+        run: |
+          mkdir -p out
+          bash scripts/render-pkgbuild-src.sh \
+            "${GITHUB_REF_NAME#v}" "$GITHUB_REF_NAME" "${{ steps.src.outputs.sha }}" \
+            > out/PKGBUILD
+          cat out/PKGBUILD
+
+      - name: Publish iptop
+        uses: KSXGitHub/github-actions-deploy-aur@v3.0.1
+        with:
+          pkgname: iptop
+          pkgbuild: out/PKGBUILD
+          commit_username: ${{ vars.AUR_USERNAME }}
+          commit_email: ${{ vars.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Update to ${{ github.ref_name }}"
