@@ -28,7 +28,7 @@ jobs:
           - { os: ubuntu-latest,    target: linux-x64 }
           - { os: ubuntu-24.04-arm, target: linux-arm64 }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -60,7 +60,7 @@ jobs:
           tar -czf "${name}.tar.gz" iptop LICENSE README.md
           shasum -a 256 "${name}.tar.gz" > "${name}.tar.gz.sha256"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: iptop-${{ matrix.target }}
           path: |
@@ -76,7 +76,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
@@ -87,7 +87,7 @@ jobs:
           cat *.sha256 | sort -k2 > checksums.txt
           cat checksums.txt
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/iptop-*.tar.gz
@@ -104,12 +104,12 @@ jobs:
     if: vars.PUBLISH_HOMEBREW == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: source
 
       - name: Checkout tap
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: franlol/homebrew-iptop
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
@@ -147,7 +147,7 @@ jobs:
     if: vars.PUBLISH_AUR == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download checksums
         env:
@@ -182,7 +182,7 @@ jobs:
     if: vars.PUBLISH_AUR == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Checksum the source tarball
         id: src
