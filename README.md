@@ -31,7 +31,7 @@ brew install iptop
 yay -S iptop-bin
 ```
 
-Or grab a standalone binary from the [latest release](https://github.com/franlol/iptop/releases/latest) — no runtime required.
+Or grab a standalone binary from the [latest release](https://github.com/franlol/iptop/releases/latest). No runtime required.
 
 ### From source
 
