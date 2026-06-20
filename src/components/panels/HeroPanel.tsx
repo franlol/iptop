@@ -12,10 +12,6 @@ interface HeroPanelProps {
   chartWidth: number
 }
 
-// brightened edge so the newest column reads as a live cursor
-const RX_HEAD = lerpColor(theme.download, "#ffffff", 0.8)
-const TX_HEAD = lerpColor(theme.upload, "#ffffff", 0.8)
-
 function seriesStats(history: number[]): { peak: number; avg: number } {
   if (history.length === 0) return { peak: 0, avg: 0 }
   const peak = Math.max(...history)
@@ -96,6 +92,10 @@ function PeakMarker({
 }
 
 export function HeroPanel({ title, throughput, rxHistory, txHistory, chartWidth }: HeroPanelProps) {
+  // brightened edges read as live cursors; derived per-render so they follow
+  // live theme switches
+  const RX_HEAD = lerpColor(theme.download, "#ffffff", 0.8)
+  const TX_HEAD = lerpColor(theme.upload, "#ffffff", 0.8)
   return (
     <box
       title={title}

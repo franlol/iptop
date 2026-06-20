@@ -13,9 +13,11 @@ import { ProcessesPanel, type ProcessSort } from "./components/panels/ProcessesP
 import { RemoteHostsPanel } from "./components/panels/RemoteHostsPanel"
 import { ServicesPanel } from "./components/panels/ServicesPanel"
 import { WorldMapPanel } from "./components/panels/WorldMapPanel"
+import { ThemeDialog } from "./components/ThemeDialog"
 import { usePoll } from "./hooks/usePoll"
 import { useSeries } from "./hooks/useSeries"
-import { theme } from "./theme"
+import { saveConfig } from "./lib/config"
+import { applyTheme, getThemeIndex, theme, themes } from "./theme"
 
 const HISTORY_SIZE = 600
 const MAP_HEIGHT = 14
@@ -36,6 +38,24 @@ export function App() {
   const [rateIndex, setRateIndex] = useState(DEFAULT_RATE_INDEX)
   const intervalMs = RATES[rateIndex] ?? RATES[DEFAULT_RATE_INDEX]
 
+  // Theme picker. `themeIndex` is what's currently applied (and previewed live);
+  // `themeBeforePicker` remembers what to revert to on cancel. `themeOpen` gates
+  // the picker. Bumping any of these re-renders the tree, which re-reads the
+  // mutated `theme` object so the whole UI recolors.
+  const [themeOpen, setThemeOpen] = useState(false)
+  const [themeIndex, setThemeIndex] = useState(getThemeIndex)
+  const themeIndexRef = useRef(themeIndex)
+  themeIndexRef.current = themeIndex
+  const themeOpenRef = useRef(themeOpen)
+  themeOpenRef.current = themeOpen
+  const themeBeforePicker = useRef(themeIndex)
+
+  const previewTheme = useCallback((index: number) => {
+    const clamped = Math.max(0, Math.min(index, themes.length - 1))
+    applyTheme(clamped)
+    setThemeIndex(clamped)
+  }, [])
+
   const system = usePoll(getSystemInfo, intervalMs, EMPTY_SYSTEM)
   const throughput = usePoll(sampleThroughput, intervalMs, EMPTY_THROUGHPUT)
   const net = usePoll(sampleTraffic, intervalMs, EMPTY_TRAFFIC)
@@ -53,6 +73,25 @@ export function App() {
   const selectedIndex = processes.findIndex((p) => p.pid === selectedPid)
 
   useKeyboard((key) => {
+    // Theme picker captures all input while open.
+    if (themeOpenRef.current) {
+      if (key.name === "j" || key.name === "down") previewTheme(themeIndexRef.current + 1)
+      else if (key.name === "k" || key.name === "up") previewTheme(themeIndexRef.current - 1)
+      else if (key.name === "return" || key.name === "enter" || key.name === "t") {
+        themeBeforePicker.current = themeIndexRef.current
+        setThemeOpen(false)
+        void saveConfig({ theme: themes[themeIndexRef.current]?.name })
+      } else if (key.name === "escape" || key.name === "q") {
+        previewTheme(themeBeforePicker.current) // revert live preview
+        setThemeOpen(false)
+      }
+      return
+    }
+    if (key.name === "t") {
+      themeBeforePicker.current = themeIndexRef.current
+      setThemeOpen(true)
+      return
+    }
     if (key.name === "q") {
       renderer.destroy()
       process.exit(0)
@@ -163,9 +202,10 @@ export function App() {
       </box>
       <box style={{ height: 1, paddingLeft: 1 }}>
         <text fg={theme.dim}>
-          q quit · j/k select · ⏎ inspect · esc back · s sort · m map · [/] {intervalMs}ms · mouse scrolls
+          q quit · j/k select · ⏎ inspect · esc back · s sort · m map · t theme · [/] {intervalMs}ms · mouse scrolls
         </text>
       </box>
+      {themeOpen ? <ThemeDialog selectedIndex={themeIndex} /> : null}
     </box>
   )
 }

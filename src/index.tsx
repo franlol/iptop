@@ -1,7 +1,9 @@
 import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
 import { App } from "./App"
+import { loadConfig } from "./lib/config"
 import { MapApp } from "./MapApp"
+import { applyTheme, themes } from "./theme"
 import pkg from "../package.json" with { type: "json" }
 
 const args = process.argv.slice(2)
@@ -23,6 +25,14 @@ Options:
 
 Keys: j/k select · ⏎ inspect · s sort · m map · q quit`)
   process.exit(0)
+}
+
+// Apply the persisted theme before the first render so there's no flash of the
+// default palette.
+const config = await loadConfig()
+if (config.theme) {
+  const saved = themes.findIndex((t) => t.name === config.theme)
+  if (saved >= 0) applyTheme(saved)
 }
 
 const renderer = await createCliRenderer({
