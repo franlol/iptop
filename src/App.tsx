@@ -75,8 +75,10 @@ export function App() {
   useKeyboard((key) => {
     // Theme picker captures all input while open.
     if (themeOpenRef.current) {
-      if (key.name === "j" || key.name === "down") previewTheme(themeIndexRef.current + 1)
-      else if (key.name === "k" || key.name === "up") previewTheme(themeIndexRef.current - 1)
+      const count = themes.length
+      // wrap around at the ends: past the last goes to the first, and vice versa
+      if (key.name === "j" || key.name === "down") previewTheme((themeIndexRef.current + 1) % count)
+      else if (key.name === "k" || key.name === "up") previewTheme((themeIndexRef.current - 1 + count) % count)
       else if (key.name === "return" || key.name === "enter" || key.name === "t") {
         themeBeforePicker.current = themeIndexRef.current
         setThemeOpen(false)
