@@ -94,8 +94,8 @@ function PeakMarker({
 export function HeroPanel({ title, throughput, rxHistory, txHistory, chartWidth }: HeroPanelProps) {
   // brightened edges read as live cursors; derived per-render so they follow
   // live theme switches
-  const RX_HEAD = lerpColor(theme.download, "#ffffff", 0.8)
-  const TX_HEAD = lerpColor(theme.upload, "#ffffff", 0.8)
+  const RX_HEAD = lerpColor(theme.download, theme.headAnchor, 0.8)
+  const TX_HEAD = lerpColor(theme.upload, theme.headAnchor, 0.8)
   return (
     <box
       title={title}

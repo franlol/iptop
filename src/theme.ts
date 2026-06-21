@@ -28,6 +28,9 @@ export interface Palette {
   // chart gradients, index 0 = row nearest the peaks
   downloadGradient: string[]
   uploadGradient: string[]
+  // high-contrast color the live-cursor chart heads brighten toward — white on
+  // dark themes, a dark color on light themes so the leading edge stays visible
+  headAnchor: string
 }
 
 // linear blend between two #rrggbb colors (duplicated from lib/tint to avoid a
@@ -76,6 +79,8 @@ interface ThemeDef {
   upload?: string
   downloadGradient?: string[]
   uploadGradient?: string[]
+  // override for light themes (defaults to white)
+  headAnchor?: string
 }
 
 function buildPalette(def: ThemeDef): Palette {
@@ -89,6 +94,7 @@ function buildPalette(def: ThemeDef): Palette {
     magentaDim: mix(c.magenta, c.chartBg, 0.5),
     downloadGradient: def.downloadGradient ?? grad(download, c.bg),
     uploadGradient: def.uploadGradient ?? grad(upload, c.bg),
+    headAnchor: def.headAnchor ?? "#ffffff",
   }
 }
 
@@ -337,6 +343,50 @@ const DEFS: ThemeDef[] = [
       track: "#131721",
       chartTrack: "#565b66",
     },
+  },
+  {
+    name: "Catppuccin Latte",
+    colors: {
+      bg: "#eff1f5",
+      panel: "#e6e9ef",
+      text: "#4c4f69",
+      dim: "#8c8fa1",
+      border: "#bcc0cc",
+      accent: "#1e66f5",
+      cyan: "#179299",
+      magenta: "#8839ef",
+      green: "#40a02b",
+      red: "#d20f39",
+      orange: "#fe640b",
+      yellow: "#df8e1d",
+      chartBg: "#e6e9ef",
+      track: "#ccd0da",
+      chartTrack: "#acb0be",
+    },
+    headAnchor: "#1e1e2e",
+  },
+  {
+    name: "Rosé Pine Dawn",
+    colors: {
+      bg: "#faf4ed",
+      panel: "#fffaf3",
+      text: "#575279",
+      dim: "#9893a5",
+      border: "#cecacd",
+      accent: "#907aa9",
+      cyan: "#56949f",
+      magenta: "#907aa9",
+      green: "#286983",
+      red: "#b4637a",
+      orange: "#d7827e",
+      yellow: "#ea9d34",
+      chartBg: "#fffaf3",
+      track: "#dfdad9",
+      chartTrack: "#cecacd",
+    },
+    download: "#56949f",
+    upload: "#b4637a",
+    headAnchor: "#26233a",
   },
 ]
 

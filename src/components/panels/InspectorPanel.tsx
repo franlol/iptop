@@ -22,7 +22,7 @@ const CHART_H = 3
 export function InspectorPanel({ process, history, connections, remotes, width }: InspectorPanelProps) {
   // brightened edge so the newest column reads as a live cursor (matches
   // HeroPanel); derived per-render so it follows live theme switches
-  const RX_HEAD = lerpColor(theme.download, "#ffffff", 0.8)
+  const RX_HEAD = lerpColor(theme.download, theme.headAnchor, 0.8)
   // same per-country colors as the world map and remote hosts
   const tints = countryTints(remotes)
   // the chart slices the last width*2 dots; scale to that window's peak, decaying
