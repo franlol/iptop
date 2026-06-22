@@ -77,10 +77,50 @@ creates it on first push if the package name is free.
 
 ---
 
+## npm (opt-in)
+
+Ships the **prebuilt binaries** as a binary-launcher package — no Bun needed on
+the user's machine:
+
+```bash
+npm install -g iptop   # or: npx iptop
+```
+
+How it works: the main `iptop` package's `bin` is a tiny Node launcher
+(`packaging/npm/iptop.js`) that execs the real binary. The binaries ride along as
+per-platform `optionalDependencies` (`iptop-darwin-arm64`, `iptop-linux-x64`,
+`iptop-linux-arm64`), each tagged with `os`/`cpu` so npm installs **only** the
+one matching the user's machine. Windows / musl get a clean "unsupported
+platform" message.
+
+One-time setup:
+
+1. Create an **npm automation token** with publish rights
+   (npmjs.com → Access Tokens → Generate → Automation).
+2. Add it to this repo as secret **`NPM_TOKEN`**.
+3. Enable the job: add repo **variable** `PUBLISH_NPM=true`.
+
+The `npm` job downloads the release tarballs and runs
+`scripts/publish-npm.sh`, which publishes the three platform packages and the
+launcher on every tag.
+
+> The package names are unscoped (`iptop`, `iptop-<os>-<arch>`) — no npm org
+> required. The first publish must come from an account that owns the `iptop`
+> name (it's currently unclaimed).
+
+---
+
 ## Test the renderers locally
 
 ```bash
 printf '%s  iptop-v0.1.0-linux-x64.tar.gz\n' "$(shasum -a 256 dist/iptop | cut -d' ' -f1)" > /tmp/c.txt
 scripts/render-homebrew.sh 0.1.0 v0.1.0 /tmp/c.txt
 scripts/render-pkgbuild.sh 0.1.0 v0.1.0 /tmp/c.txt
+```
+
+For npm, point the script at a dir of release tarballs and dry-run it (builds
+the packages but skips `npm publish`):
+
+```bash
+DRY_RUN=1 scripts/publish-npm.sh 0.1.0 v0.1.0 /path/to/release-tarballs
 ```
