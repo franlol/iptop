@@ -208,34 +208,3 @@ jobs:
           commit_email: ${{ vars.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           commit_message: "Update to ${{ github.ref_name }}"
-
-  # ---------------------------------------------------------------------------
-  # Opt-in: set repo variable PUBLISH_NPM=true and secret NPM_TOKEN (an npm
-  # automation token with publish rights). Ships the prebuilt binaries as a
-  # binary-launcher package — `npm i -g iptop` / `npx iptop`, no Bun needed.
-  # ---------------------------------------------------------------------------
-  npm:
-    name: Publish to npm
-    needs: release
-    if: vars.PUBLISH_NPM == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org
-
-      - name: Download release tarballs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-            --pattern 'iptop-*.tar.gz' --dir rel
-
-      - name: Build & publish packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          bash scripts/publish-npm.sh "${GITHUB_REF_NAME#v}" "$GITHUB_REF_NAME" rel
