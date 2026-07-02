@@ -109,6 +109,34 @@ describe("sampleTraffic (linux)", () => {
     expect(second.remotes.map((r) => r.ip)).toContain("151.101.1.71")
   })
 
+  test("Σ totals never go backwards when a socket closes", async () => {
+    const header = "State Recv-Q Send-Q Local Address:Port     Peer Address:Port Process"
+    const socket = (port: number, bytes: number) =>
+      [
+        `ESTAB 0 0       192.168.1.51:${port}    151.101.1.72:443   users:(("rsync",pid=444,fd=3))`,
+        `\t cubic bytes_sent:${Math.floor(bytes / 2)} bytes_received:${bytes}`,
+      ].join("\n")
+
+    // first sighting seeds the total from the live-socket sum
+    ssOutput = [header, socket(60101, 10_000)].join("\n")
+    const first = await sampleTraffic()
+    expect(first.processes.find((p) => p.pid === 444)!.rxTotal).toBe(10_000)
+
+    // subsequent ticks accumulate the socket delta on top of the seed
+    await Bun.sleep(30)
+    ssOutput = [header, socket(60101, 50_000)].join("\n")
+    const second = await sampleTraffic()
+    const total = second.processes.find((p) => p.pid === 444)!.rxTotal
+    expect(total).toBeCloseTo(50_000, 0)
+
+    // the socket closes and a fresh one replaces it with tiny counters: the
+    // live-socket sum collapses (50000 → 300) but the Σ total must not
+    await Bun.sleep(30)
+    ssOutput = [header, socket(60102, 300)].join("\n")
+    const third = await sampleTraffic()
+    expect(third.processes.find((p) => p.pid === 444)!.rxTotal).toBeGreaterThanOrEqual(total)
+  })
+
   test("a process whose sockets vanish decays instead of disappearing", async () => {
     ssOutput = "garbage\nmore garbage"
     const first = await sampleTraffic()

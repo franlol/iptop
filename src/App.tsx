@@ -170,7 +170,7 @@ export function App() {
             processes={processes}
             sort={sort}
             selectedIndex={selectedIndex}
-            nameWidth={Math.max(10, halfInner - 29)}
+            nameWidth={Math.max(10, halfInner - 33)}
           />
           <ConnectionsPanel
             connections={connections}

@@ -135,10 +135,20 @@ export function aggregate(raw: RawTraffic): TrafficSample {
       const pr = processRates.get(p.pid)
       r = pr ? { rxRate: pr.rx, txRate: pr.tx } : null
     }
-    const entry = processEntries.get(p.pid) ?? { name: p.name, emaRx: 0, emaTx: 0, rxTotal: 0, txTotal: 0 }
+    // totals seed from the live-socket sum so a fresh row starts with history
+    const entry =
+      processEntries.get(p.pid) ??
+      { name: p.name, emaRx: 0, emaTx: 0, rxTotal: p.rxBytes, txTotal: p.txBytes }
     entry.name = p.name
-    entry.rxTotal = p.rxBytes
-    entry.txTotal = p.txBytes
+    if (raw.monotonicProcessTotals) {
+      entry.rxTotal = p.rxBytes
+      entry.txTotal = p.txBytes
+    } else if (r) {
+      // the live-socket sum shrinks when a socket closes; accumulate socket
+      // deltas instead (rate × elapsed) so Σ totals never go backwards
+      entry.rxTotal += r.rxRate * elapsed
+      entry.txTotal += r.txRate * elapsed
+    }
     if (r) {
       entry.emaRx = smooth(entry.emaRx, r.rxRate)
       entry.emaTx = smooth(entry.emaTx, r.txRate)

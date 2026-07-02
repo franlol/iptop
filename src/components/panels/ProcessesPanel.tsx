@@ -66,8 +66,10 @@ export function ProcessesPanel({ processes, sort, selectedIndex, nameWidth }: Pr
           const selected = i === selectedIndex
           const surface = selected ? theme.track : theme.chartBg
 
-          // single magenta bar: rx (█) then tx (▒), sqrt-scaled length.
-          const cells = total > 0 ? Math.max(1, Math.round(sqrtRatio(total, max) * BAR_W)) : 0
+          // single magenta bar: rx (█) then tx (▒), sqrt-scaled length. The
+          // >= 1 threshold matches formatCompact's rounding, so a row never
+          // shows a bar cell next to numbers that read 0.
+          const cells = total >= 1 ? Math.max(1, Math.round(sqrtRatio(total, max) * BAR_W)) : 0
           let rxCells = total > 0 ? Math.round(cells * (rx / total)) : 0
           let txCells = cells - rxCells
           if (cells >= 2) {
@@ -83,6 +85,13 @@ export function ProcessesPanel({ processes, sort, selectedIndex, nameWidth }: Pr
           const nameText = p.name.length > maxName ? padEndTrunc(p.name, maxName) : p.name
           const pad = Math.max(0, nameWidth - nameText.length - pidStr.length)
 
+          // numbers carry their meaning like the inspector does: rates get a
+          // /s suffix, totals get Σ on the arrow — pressing `s` swaps what the
+          // columns mean, so the title alone isn't enough
+          const isRate = sort === "rate"
+          const num = (v: number) =>
+            isRate ? padStartTrunc(`${formatCompact(v)}/s`, RATE_W + 2) : padStartTrunc(formatCompact(v), RATE_W)
+
           return (
             <text key={p.pid} id={`proc-${p.pid}`} bg={selected ? theme.track : undefined} wrapMode="none">
               <span fg={selected ? theme.accent : active ? theme.green : theme.dim}>
@@ -95,9 +104,9 @@ export function ProcessesPanel({ processes, sort, selectedIndex, nameWidth }: Pr
               <span fg={theme.magenta} bg={surface}>{"▒".repeat(txCells)}</span>
               <span bg={surface}>{" ".repeat(empty)}</span>
               <span fg={active ? theme.magenta : theme.dim}> ▼</span>
-              <span fg={active ? theme.text : theme.dim}>{padStartTrunc(formatCompact(rx), RATE_W)}</span>
+              <span fg={active ? theme.text : theme.dim}>{num(rx)}</span>
               <span fg={active ? theme.magentaDim : theme.dim}> ▲</span>
-              <span fg={active ? theme.text : theme.dim}>{padStartTrunc(formatCompact(tx), RATE_W)}</span>
+              <span fg={active ? theme.text : theme.dim}>{num(tx)}</span>
             </text>
           )
         })}
